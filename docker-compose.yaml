@@ -1,0 +1,30 @@
+services:
+  book-service:
+    container_name: book-service
+    depends_on:
+      - isbn-service
+      - postgres
+    environment:
+      DB_HOST: postgres:5432/zebrastore
+      ISBN_HOST: http://isbn-service:8701
+    image: ghcr.io/danielmahadi/zebrastore-book-service:main
+    ports:
+      - 8080:8702
+    pull_policy: always
+  isbn-service:
+    container_name: isbn-service
+    depends_on:
+      - postgres
+    image: ghcr.io/danielmahadi/zebrastore-isbn-service:main
+    pull_policy: always
+  postgres:
+    container_name: postgres
+    image: postgres:15-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=zebrastore
+      - POSTGRES_USER=zebrastore
+      - POSTGRES_DB=zebrastore
